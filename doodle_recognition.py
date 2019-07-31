@@ -19,11 +19,14 @@ strokes = []
 curve = []
 stroke_idx = 0
 
+def clear_canvas():
+    canvas.create_rectangle(0, 0, 640, 480, outline="#FFFFFF", fill="#FFFFFF")
+    
+
 def ms_release(event):
     global strokes, stroke_idx, curve
 
     strokes.append(curve)
-    print(stroke_idx, len(curve))
     curve = []
     stroke_idx += 1
 
@@ -34,17 +37,15 @@ def ms_right_dbl_click(event):
     strokes = []
     curve = []
     stroke_idx = 0
-    print('ssss')
     cv2.imwrite('image.png', img)
 
     img = np.ones((480,640,3), dtype=np.uint8)*255
+    clear_canvas()
     
 
 def ms_move(event):
     global x_old, y_old, x_new, y_new, curve, img
     
-    #print("moved", event.x, event.y)
-
     x_new = np.clip(event.x,0,639)
     y_new = np.clip(event.y,0,479)
 
@@ -52,9 +53,7 @@ def ms_move(event):
         x_old = x_new
         y_old = y_new
 
-    print(x_old,y_old,x_new,y_new)    
-
-    w.create_line(x_old, y_old, x_new, y_new, fill='black', width=10)
+    canvas.create_line(x_old, y_old, x_new, y_new, fill='black', width=10)
     cv2.line(img,(x_old,y_old),(x_new,y_new),(0,0,0),10)
 
     curve.append([x_old,y_old,x_new,y_new])
@@ -62,15 +61,18 @@ def ms_move(event):
     x_old = x_new
     y_old = y_new
 
-w = Canvas(window, width=640, height=480)
-frame = Frame(window, width=640, height=480)
-frame.bind("<B1-Motion>", ms_move)
-frame.bind("<ButtonRelease-1>", ms_release)
-frame.bind("<Double-Button-3>", ms_right_dbl_click)
-frame.pack()
 
-w.create_rectangle(30, 10, 120, 80, outline="#fb0", fill="#fb0")
-w.pack(fill=BOTH, expand=0)
+### main
+
+canvas = Canvas(window, width=640, height=480)
+
+clear_canvas()
+
+canvas.bind("<B1-Motion>", ms_move)
+canvas.bind("<ButtonRelease-1>", ms_release)
+canvas.bind("<Double-Button-3>", ms_right_dbl_click)
+
+canvas.pack(fill=BOTH, expand=0)
 
 
 window.mainloop()
