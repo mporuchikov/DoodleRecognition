@@ -2,8 +2,9 @@ import numpy as np
 import cv2
 import tkinter
 from tkinter import *
+from keras.models import load_model
 
-img = np.ones((480,640,3), dtype=np.uint8)*255
+img = np.ones((480,640,1), dtype=np.uint8)*255
 
 print(img.shape)
 
@@ -39,6 +40,18 @@ def ms_right_dbl_click(event):
     stroke_idx = 0
     cv2.imwrite('image.png', img)
 
+    # predict
+    im = cv2.resize(img,(28,28))
+    im = im / 255
+    x = im.reshape(1,784)
+    p = model.predict(x)
+    p = p.reshape(-1)
+    print(p)
+    digit = p.argmax()
+    prob = p[digit]
+    print(digit, prob)
+
+    # reset
     img = np.ones((480,640,3), dtype=np.uint8)*255
     clear_canvas()
     
@@ -63,6 +76,11 @@ def ms_move(event):
 
 
 ### main
+
+
+
+model = load_model('model.h5')
+    
 
 canvas = Canvas(window, width=640, height=480)
 
